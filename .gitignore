@@ -22,3 +22,12 @@ prometheus_data/
 # Runtime logs and process ids
 uvicorn.log
 uvicorn.pid
+
+# Local environment variables
+.env
+
+# DQOps local runtime files
+dqops_home/
+dqops.log
+dqops.pid
+.env.dqops
