@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+prometheus-client
+scikit-learn
+numpy
+pydantic

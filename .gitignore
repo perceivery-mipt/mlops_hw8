@@ -19,3 +19,6 @@ prometheus_data/
 # Generated graphviz auxiliary files
 *.gv
 *.dot
+# Runtime logs and process ids
+uvicorn.log
+uvicorn.pid

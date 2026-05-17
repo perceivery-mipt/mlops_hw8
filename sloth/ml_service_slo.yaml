@@ -1,0 +1,59 @@
+version: "prometheus/v1"
+service: "online-cinema-ml-service"
+
+slos:
+  - name: "requests-latency"
+    objective: 95
+    description: "95% requests should be processed in less than 1 second."
+    sli:
+      events:
+        error_query: |
+          sum(rate(request_latency_seconds_count[{{ .window }}]))
+          -
+          sum(rate(request_latency_seconds_bucket{le="1.0"}[{{ .window }}]))
+        total_query: |
+          sum(rate(request_latency_seconds_count[{{ .window }}]))
+    alerting:
+      name: "HighLatency"
+      labels:
+        category: "latency"
+        severity: "warning"
+      annotations:
+        summary: "High request latency detected"
+        description: "More than 5% of requests are slower than 1 second."
+
+  - name: "requests-errors"
+    objective: 99
+    description: "99% requests should not return 5xx errors."
+    sli:
+      events:
+        error_query: |
+          sum(rate(http_requests_total{status=~"5.."}[{{ .window }}]))
+        total_query: |
+          sum(rate(http_requests_total[{{ .window }}]))
+    alerting:
+      name: "HighErrorRate"
+      labels:
+        category: "errors"
+        severity: "warning"
+      annotations:
+        summary: "High error rate detected"
+        description: "More than 1% of requests return 5xx errors."
+
+  - name: "service-availability"
+    objective: 99
+    description: "Service should be available more than 99% of the time."
+    sli:
+      events:
+        error_query: |
+          sum(1 - avg_over_time(up{job="ml_service"}[{{ .window }}]))
+        total_query: |
+          count(avg_over_time(up{job="ml_service"}[{{ .window }}]))
+    alerting:
+      name: "LowAvailability"
+      labels:
+        category: "availability"
+        severity: "critical"
+      annotations:
+        summary: "Low service availability detected"
+        description: "ML service availability is below 99%."
